@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>학생 뽑기 & 모둠 편성기</title>
+  <style>
+    :root {
+      --bg: #f4f6fb;
+      --card: #ffffff;
+      --text: #1b1f2a;
+      --muted: #5b6475;
+      --line: #d9deea;
+      --primary: #2f5bea;
+      --primary-dark: #2449c2;
+      --accent-bg: #eef2ff;
+      --error: #c62828;
+      --ok: #2e7d32;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif;
+      line-height: 1.5;
+      overflow-x: hidden; /* 화면이 흔들릴 때 가로 스크롤바가 생기지 않게 */
+    }
+
+    main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 24px 16px 48px;
+    }
+
+    h1 {
+      margin: 0 0 20px;
+      font-size: 2rem;
+      text-align: center;
+    }
+
+    section {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: 1.3rem;
+    }
+
+    .step {
+      display: inline-block;
+      background: var(--primary);
+      color: #fff;
+      border-radius: 6px;
+      padding: 0 8px;
+      margin-right: 6px;
+      font-size: 1rem;
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .roster-layout {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    textarea {
+      flex: 1 1 280px;
+      min-height: 200px;
+      padding: 12px;
+      font: inherit;
+      font-size: 1.05rem;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      resize: vertical;
+    }
+
+    .roster-side {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-width: 160px;
+    }
+
+    .count {
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    button {
+      font: inherit;
+      font-size: 1.05rem;
+      font-weight: bold;
+      padding: 10px 20px;
+      border-radius: 10px;
+      border: 2px solid var(--primary);
+      background: var(--primary);
+      color: #fff;
+      cursor: pointer;
+    }
+
+    button:hover { background: var(--primary-dark); border-color: var(--primary-dark); }
+
+    button.secondary {
+      background: #fff;
+      color: var(--primary);
+    }
+
+    button.secondary:hover { background: var(--accent-bg); }
+
+    input[type="number"] {
+      width: 80px;
+      padding: 8px 10px;
+      font: inherit;
+      font-size: 1.1rem;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+    }
+
+    .message {
+      min-height: 1.5em;
+      margin: 10px 0 0;
+      font-weight: bold;
+    }
+
+    .message.error { color: var(--error); }
+    .message.ok { color: var(--ok); }
+
+    .picked-display {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 150px;
+      margin-bottom: 16px;
+      padding: 16px;
+      background: var(--accent-bg);
+      border-radius: 14px;
+      font-size: clamp(2.5rem, 9vw, 5rem);
+      font-weight: bold;
+      text-align: center;
+      letter-spacing: 0.1em;
+      word-break: keep-all;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .picked-display.placeholder {
+      font-size: 1.3rem;
+      font-weight: normal;
+      letter-spacing: 0;
+      color: var(--muted);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* ── 폭탄 애니메이션 ── */
+
+    /* 1단계: 폭탄이 부들부들 떨며 점점 커짐 */
+    .bomb {
+      display: inline-block;
+      animation: bomb-wiggle 0.9s ease-in forwards;
+    }
+
+    @keyframes bomb-wiggle {
+      0%   { transform: scale(0.8) rotate(0deg); }
+      20%  { transform: scale(0.9) rotate(-12deg); }
+      40%  { transform: scale(1.0) rotate(12deg); }
+      60%  { transform: scale(1.15) rotate(-16deg); }
+      80%  { transform: scale(1.3) rotate(16deg); }
+      100% { transform: scale(1.5) rotate(0deg); }
+    }
+
+    /* 2단계: 이름이 작게 시작해 튀어나옴 */
+    .reveal {
+      display: inline-block;
+      animation: name-pop 0.6s cubic-bezier(0.2, 1.6, 0.4, 1) both;
+    }
+
+    @keyframes name-pop {
+      0%   { transform: scale(0.1); opacity: 0; }
+      100% { transform: scale(1);   opacity: 1; }
+    }
+
+    /* 터지는 순간의 번쩍임 */
+    .flash {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle, #fff7c2 0%, #ffb300 35%, #ff5722 60%, transparent 80%);
+      pointer-events: none;
+      animation: flash 0.7s ease-out forwards;
+    }
+
+    @keyframes flash {
+      0%   { opacity: 1; transform: scale(0.3); }
+      100% { opacity: 0; transform: scale(2.2); }
+    }
+
+    /* 사방으로 튀는 불꽃 조각 */
+    .spark {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: var(--size);
+      height: var(--size);
+      margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2);
+      border-radius: 50%;
+      background: var(--color);
+      pointer-events: none;
+      animation: spark 0.9s ease-out forwards;
+    }
+
+    @keyframes spark {
+      0%   { transform: translate(0, 0) scale(1); opacity: 1; }
+      100% { transform: translate(var(--dx), var(--dy)) scale(0.2); opacity: 0; }
+    }
+
+    /* 화면 흔들림 */
+    .shake {
+      animation: shake 0.5s ease-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translate(0, 0); }
+      15% { transform: translate(-10px, 6px); }
+      30% { transform: translate(9px, -7px); }
+      45% { transform: translate(-7px, -5px); }
+      60% { transform: translate(6px, 5px); }
+      75% { transform: translate(-3px, 2px); }
+    }
+
+    /* 움직임 줄이기 설정을 켠 컴퓨터에서는 흔들림·불꽃 생략 */
+    @media (prefers-reduced-motion: reduce) {
+      .bomb, .shake, .spark { animation: none; }
+      .spark { display: none; }
+    }
+
+    .remaining {
+      margin-left: auto;
+      font-size: 1.1rem;
+      font-weight: bold;
+    }
+
+    .sound-toggle {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 1.05rem;
+      cursor: pointer;
+    }
+
+    .sound-toggle input {
+      width: 20px;
+      height: 20px;
+    }
+
+    .picked-list {
+      margin: 12px 0 0;
+      color: var(--muted);
+    }
+
+    .groups {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .group-card {
+      border: 2px solid var(--primary);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .group-card h3 {
+      margin: 0;
+      padding: 8px 12px;
+      background: var(--primary);
+      color: #fff;
+      font-size: 1.15rem;
+    }
+
+    .group-card ul {
+      margin: 0;
+      padding: 10px 12px 12px 32px;
+      font-size: 1.2rem;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>학생 뽑기 &amp; 모둠 편성기</h1>
+
+    <!-- [1] 명단 -->
+    <section>
+      <h2><span class="step">1</span>명단</h2>
+      <div class="roster-layout">
+        <textarea id="rosterInput" placeholder="한 줄에 한 명씩 이름을 입력하거나 붙여넣으세요.&#10;예)&#10;김민준&#10;이서연&#10;박지호"></textarea>
+        <div class="roster-side">
+          <div class="count">인원: <span id="countText">0</span>명</div>
+          <button id="saveBtn">명단 저장</button>
+        </div>
+      </div>
+      <p id="rosterMessage" class="message"></p>
+    </section>
+
+    <!-- [2] 한 명 뽑기 -->
+    <section>
+      <h2><span class="step">2</span>한 명 뽑기</h2>
+      <div id="pickedDisplay" class="picked-display placeholder">"뽑기"를 누르세요</div>
+      <div class="row">
+        <button id="pickBtn">뽑기</button>
+        <button id="resetBtn" class="secondary">다시 시작</button>
+        <label class="sound-toggle"><input id="soundOn" type="checkbox" checked> 소리</label>
+        <span class="remaining">남은 인원: <span id="remainingText">0</span>명</span>
+      </div>
+      <p id="pickMessage" class="message"></p>
+      <p class="picked-list">뽑힌 학생: <span id="pickedList">없음</span></p>
+    </section>
+
+    <!-- [3] 모둠 편성 -->
+    <section>
+      <h2><span class="step">3</span>모둠 편성</h2>
+      <div class="row">
+        <label for="groupCount">모둠 개수:</label>
+        <input id="groupCount" type="number" min="2" value="4">
+        <button id="groupBtn">모둠 만들기</button>
+      </div>
+      <p id="groupMessage" class="message"></p>
+      <div id="groups" class="groups"></div>
+    </section>
+  </main>
+
+  <script>
+    const STORAGE_KEY = "classPicker.roster";
+
+    const rosterInput = document.getElementById("rosterInput");
+    const countText = document.getElementById("countText");
+    const saveBtn = document.getElementById("saveBtn");
+    const rosterMessage = document.getElementById("rosterMessage");
+
+    const pickedDisplay = document.getElementById("pickedDisplay");
+    const pickBtn = document.getElementById("pickBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const remainingText = document.getElementById("remainingText");
+    const pickMessage = document.getElementById("pickMessage");
+    const pickedList = document.getElementById("pickedList");
+    const soundOn = document.getElementById("soundOn");
+
+    const groupCountInput = document.getElementById("groupCount");
+    const groupBtn = document.getElementById("groupBtn");
+    const groupMessage = document.getElementById("groupMessage");
+    const groupsBox = document.getElementById("groups");
+
+    // 저장된 명단, 아직 안 뽑힌 학생, 뽑힌 학생
+    let roster = [];
+    let remaining = [];
+    let picked = [];
+
+    // 텍스트 상자 내용 → 이름 배열 (빈 줄·앞뒤 공백 제거)
+    function parseNames(text) {
+      return text
+        .split("\n")
+        .map(name => name.trim())
+        .filter(name => name !== "");
+    }
+
+    // 배열을 무작위로 섞은 새 배열 반환 (피셔-예이츠 셔플)
+    function shuffle(array) {
+      const result = array.slice();
+      for (let i = result.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [result[i], result[j]] = [result[j], result[i]];
+      }
+      return result;
+    }
+
+    // 뽑을 때 "펑!" 폭탄 터지는 소리 (소리 파일 없이 Web Audio로 합성)
+    let audioCtx = null;
+
+    function playBoom() {
+      if (!soundOn.checked) return;
+      try {
+        audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+        const t = audioCtx.currentTime;
+        const duration = 1.8;
+
+        // 1) 폭발의 "콰르르" 부분: 잡음을 만들고 점점 낮고 작아지게
+        const length = Math.floor(audioCtx.sampleRate * duration);
+        const buffer = audioCtx.createBuffer(1, length, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < length; i++) {
+          data[i] = Math.random() * 2 - 1;
+        }
+        const noise = audioCtx.createBufferSource();
+        noise.buffer = buffer;
+
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = "lowpass";
+        filter.frequency.setValueAtTime(3000, t);
+        filter.frequency.exponentialRampToValueAtTime(80, t + duration);
+
+        const noiseGain = audioCtx.createGain();
+        noiseGain.gain.setValueAtTime(1.0, t);
+        noiseGain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
+
+        noise.connect(filter).connect(noiseGain).connect(audioCtx.destination);
+        noise.start(t);
+        noise.stop(t + duration);
+
+        // 2) 폭발의 "쿵" 부분: 낮은 음이 더 낮게 떨어짐
+        const thump = audioCtx.createOscillator();
+        const thumpGain = audioCtx.createGain();
+        thump.type = "sine";
+        thump.frequency.setValueAtTime(120, t);
+        thump.frequency.exponentialRampToValueAtTime(30, t + 0.6);
+        thumpGain.gain.setValueAtTime(1.0, t);
+        thumpGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.8);
+
+        thump.connect(thumpGain).connect(audioCtx.destination);
+        thump.start(t);
+        thump.stop(t + 0.8);
+      } catch (e) {
+        // 소리를 낼 수 없는 환경이면 조용히 넘어감
+      }
+    }
+
+    function showMessage(element, text, type) {
+      element.textContent = text;
+      element.className = "message " + (type || "");
+    }
+
+    function updateCount() {
+      countText.textContent = parseNames(rosterInput.value).length;
+    }
+
+    function updatePickView() {
+      remainingText.textContent = remaining.length;
+      pickedList.textContent = picked.length ? picked.join(", ") : "없음";
+    }
+
+    // 애니메이션 진행 중인 타이머 (다시 시작하면 취소)
+    let bombTimer = null;
+
+    function stopBomb() {
+      clearTimeout(bombTimer);
+      bombTimer = null;
+      pickBtn.disabled = false;
+    }
+
+    // 폭탄이 떨다가 터지고, 그 자리에 이름이 튀어나옴
+    function explodeAndShow(name, onDone) {
+      pickBtn.disabled = true;
+      pickedDisplay.classList.remove("placeholder");
+      pickedDisplay.innerHTML = "";
+
+      const bomb = document.createElement("span");
+      bomb.className = "bomb";
+      bomb.textContent = "💣";
+      pickedDisplay.appendChild(bomb);
+
+      bombTimer = setTimeout(() => {
+        playBoom();
+
+        // 이름 표시
+        pickedDisplay.innerHTML = "";
+        const nameEl = document.createElement("span");
+        nameEl.className = "reveal";
+        nameEl.textContent = name;
+        pickedDisplay.appendChild(nameEl);
+
+        // 번쩍임
+        const flash = document.createElement("div");
+        flash.className = "flash";
+        pickedDisplay.appendChild(flash);
+
+        // 불꽃 조각 30개를 사방으로
+        const colors = ["#ff5722", "#ff9800", "#ffc107", "#ffeb3b", "#f44336"];
+        for (let i = 0; i < 30; i++) {
+          const spark = document.createElement("span");
+          const angle = Math.random() * Math.PI * 2;
+          const distance = 80 + Math.random() * 220;
+          spark.className = "spark";
+          spark.style.setProperty("--dx", Math.cos(angle) * distance + "px");
+          spark.style.setProperty("--dy", Math.sin(angle) * distance + "px");
+          spark.style.setProperty("--size", 6 + Math.random() * 12 + "px");
+          spark.style.setProperty("--color", colors[i % colors.length]);
+          pickedDisplay.appendChild(spark);
+        }
+
+        // 화면 흔들기
+        document.body.classList.remove("shake");
+        void document.body.offsetWidth; // 연속으로 눌러도 다시 흔들리게
+        document.body.classList.add("shake");
+
+        onDone();
+
+        // 효과가 끝나면 정리
+        bombTimer = setTimeout(() => {
+          flash.remove();
+          pickedDisplay.querySelectorAll(".spark").forEach(el => el.remove());
+          document.body.classList.remove("shake");
+          stopBomb();
+        }, 900);
+      }, 900);
+    }
+
+    function resetPick() {
+      stopBomb();
+      document.body.classList.remove("shake");
+      remaining = roster.slice();
+      picked = [];
+      pickedDisplay.textContent = '"뽑기"를 누르세요';
+      pickedDisplay.classList.add("placeholder");
+      showMessage(pickMessage, "");
+      updatePickView();
+    }
+
+    function saveRoster() {
+      roster = parseNames(rosterInput.value);
+      rosterInput.value = roster.join("\n");
+      updateCount();
+
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(roster));
+        showMessage(rosterMessage, roster.length + "명의 명단을 저장했어요.", "ok");
+      } catch (e) {
+        showMessage(rosterMessage, "이 브라우저에서는 명단을 저장할 수 없어요. 이번 사용 중에만 적용돼요.", "error");
+      }
+
+      // 명단이 바뀌면 뽑기 기록과 모둠 결과를 새로 시작
+      resetPick();
+      groupsBox.innerHTML = "";
+      showMessage(groupMessage, "");
+    }
+
+    function loadRoster() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (Array.isArray(saved)) {
+          roster = saved;
+          rosterInput.value = roster.join("\n");
+        }
+      } catch (e) {
+        roster = [];
+      }
+      updateCount();
+      resetPick();
+    }
+
+    function pickOne() {
+      if (roster.length === 0) {
+        showMessage(pickMessage, "먼저 명단을 입력하고 [명단 저장]을 눌러 주세요.", "error");
+        return;
+      }
+      if (remaining.length === 0) {
+        showMessage(pickMessage, "모든 학생이 뽑혔어요. [다시 시작]을 눌러 주세요.", "error");
+        return;
+      }
+
+      const index = Math.floor(Math.random() * remaining.length);
+      const name = remaining.splice(index, 1)[0];
+      picked.push(name);
+
+      showMessage(pickMessage, "");
+
+      // 터지는 순간에 남은 인원·뽑힌 목록도 함께 갱신 (미리 들키지 않게)
+      explodeAndShow(name, () => {
+        if (remaining.length === 0) {
+          showMessage(pickMessage, "마지막 학생이에요! 모두 한 번씩 뽑혔어요.", "ok");
+        }
+        updatePickView();
+      });
+    }
+
+    function makeGroups() {
+      const count = Number(groupCountInput.value);
+
+      if (roster.length === 0) {
+        showMessage(groupMessage, "먼저 명단을 입력하고 [명단 저장]을 눌러 주세요.", "error");
+        return;
+      }
+      if (!Number.isInteger(count) || count < 2 || count > roster.length) {
+        showMessage(groupMessage, "모둠 개수는 2 이상 " + roster.length + " 이하로 입력해 주세요.", "error");
+        return;
+      }
+
+      // 섞은 뒤 차례로 한 명씩 나눠 주면 모둠 간 인원 차이가 최대 1명
+      const groups = Array.from({ length: count }, () => []);
+      shuffle(roster).forEach((name, i) => groups[i % count].push(name));
+
+      groupsBox.innerHTML = "";
+      groups.forEach((members, i) => {
+        const card = document.createElement("div");
+        card.className = "group-card";
+
+        const title = document.createElement("h3");
+        title.textContent = (i + 1) + "모둠 (" + members.length + "명)";
+        card.appendChild(title);
+
+        const list = document.createElement("ul");
+        members.forEach(name => {
+          const item = document.createElement("li");
+          item.textContent = name;
+          list.appendChild(item);
+        });
+        card.appendChild(list);
+
+        groupsBox.appendChild(card);
+      });
+
+      showMessage(groupMessage, "");
+    }
+
+    rosterInput.addEventListener("input", updateCount);
+    saveBtn.addEventListener("click", saveRoster);
+    pickBtn.addEventListener("click", pickOne);
+    resetBtn.addEventListener("click", resetPick);
+    groupBtn.addEventListener("click", makeGroups);
+
+    loadRoster();
+  </script>
+</body>
+</html>

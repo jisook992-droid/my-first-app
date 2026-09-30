@@ -1,0 +1,14 @@
+# 환경 변수·비밀 정보
+.env
+.env.*
+*.key
+*.pem
+
+# Claude Code 로컬 설정
+.claude/
+
+# OS·편집기 임시 파일
+Thumbs.db
+desktop.ini
+.DS_Store
+.vscode/
