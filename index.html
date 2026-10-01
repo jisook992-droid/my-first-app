@@ -4,25 +4,39 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>학생 뽑기 & 모둠 편성기</title>
+  <!-- 둥글둥글 귀여운 한글 글꼴 (인터넷이 없으면 기본 글꼴로 표시) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #f4f6fb;
+      --bg: #fff7fb;
+      --dot: #ffe0ee;
       --card: #ffffff;
-      --text: #1b1f2a;
-      --muted: #5b6475;
-      --line: #d9deea;
-      --primary: #2f5bea;
-      --primary-dark: #2449c2;
-      --accent-bg: #eef2ff;
-      --error: #c62828;
-      --ok: #2e7d32;
+      --text: #4a3b52;
+      --muted: #8c7d95;
+      --line: #f3d9e6;
+      --primary: #ff7eb6;
+      --primary-dark: #f25c9f;
+      --primary-shadow: #d94a8a;
+      --accent-bg: #fff0f6;
+      --mint: #7fd8be;
+      --lemon: #ffe27a;
+      --lavender: #b8a4ff;
+      --sky: #8fd3ff;
+      --error: #e0527a;
+      --ok: #2fa37f;
+      --cute-font: "Jua", "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif;
     }
 
     * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      background: var(--bg);
+      /* 연분홍 물방울 무늬 배경 */
+      background-color: var(--bg);
+      background-image: radial-gradient(var(--dot) 18%, transparent 19%);
+      background-size: 28px 28px;
       color: var(--text);
       font-family: "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif;
       line-height: 1.5;
@@ -32,36 +46,60 @@
     main {
       max-width: 960px;
       margin: 0 auto;
-      padding: 24px 16px 48px;
+      padding: 28px 16px 48px;
     }
 
     h1 {
-      margin: 0 0 20px;
-      font-size: 2rem;
+      margin: 0;
+      font-family: var(--cute-font);
+      font-weight: normal;
+      font-size: clamp(1.9rem, 6vw, 2.8rem);
       text-align: center;
+      color: var(--primary-dark);
+      text-shadow: 3px 3px 0 #ffffff, 5px 5px 0 var(--dot);
+    }
+
+    .subtitle {
+      margin: 4px 0 24px;
+      text-align: center;
+      font-family: var(--cute-font);
+      font-size: 1.15rem;
+      color: var(--muted);
     }
 
     section {
       background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 20px;
-      margin-bottom: 20px;
+      border: 3px solid var(--accent);
+      border-radius: 28px;
+      padding: 22px;
+      margin-bottom: 24px;
+      box-shadow: 0 8px 0 var(--accent);
     }
 
+    /* 영역마다 다른 파스텔 테두리 */
+    .sec-roster { --accent: #ffd1e6; }
+    .sec-pick   { --accent: #ffe9a8; }
+    .sec-group  { --accent: #c9f0e3; }
+
     h2 {
-      margin: 0 0 14px;
-      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 16px;
+      font-family: var(--cute-font);
+      font-weight: normal;
+      font-size: 1.6rem;
     }
 
     .step {
-      display: inline-block;
-      background: var(--primary);
-      color: #fff;
-      border-radius: 6px;
-      padding: 0 8px;
-      margin-right: 6px;
-      font-size: 1rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--accent);
+      font-size: 1.4rem;
     }
 
     .row {
@@ -78,15 +116,55 @@
       align-items: flex-start;
     }
 
-    textarea {
-      flex: 1 1 280px;
-      min-height: 200px;
+    /* 번호 + 이름 칸 목록 */
+    .name-list {
+      flex: 1 1 300px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      gap: 8px;
+      max-height: 340px;
+      overflow-y: auto;
       padding: 12px;
+      background: #fffafc;
+      border: 3px dashed var(--line);
+      border-radius: 20px;
+    }
+
+    .name-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .name-row .num {
+      flex: 0 0 48px;
+      padding: 4px 0;
+      border-radius: 999px;
+      background: #ffd1e6;
+      font-family: var(--cute-font);
+      font-size: 1.05rem;
+      text-align: center;
+    }
+
+    .name-row input {
+      flex: 1;
+      min-width: 0;
+      padding: 6px 10px;
       font: inherit;
       font-size: 1.05rem;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      resize: vertical;
+      color: var(--text);
+      background: #fff;
+      border: 2px solid var(--line);
+      border-radius: 12px;
+      outline: none;
+    }
+
+    .name-row input:focus { border-color: var(--primary); }
+
+    .roster-hint {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 0.95rem;
     }
 
     .roster-side {
@@ -97,27 +175,41 @@
     }
 
     .count {
-      font-size: 1.2rem;
-      font-weight: bold;
+      font-family: var(--cute-font);
+      font-size: 1.4rem;
     }
 
+    .number-fill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 6px;
+      font-family: var(--cute-font);
+      font-size: 1.2rem;
+    }
+
+    /* 말랑말랑 알약 모양 버튼 (아래 그림자로 볼록한 느낌) */
     button {
-      font: inherit;
-      font-size: 1.05rem;
-      font-weight: bold;
-      padding: 10px 20px;
-      border-radius: 10px;
-      border: 2px solid var(--primary);
+      font-family: var(--cute-font);
+      font-size: 1.25rem;
+      padding: 10px 26px;
+      border-radius: 999px;
+      border: none;
       background: var(--primary);
       color: #fff;
+      box-shadow: 0 5px 0 var(--primary-shadow);
       cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.1s;
     }
 
-    button:hover { background: var(--primary-dark); border-color: var(--primary-dark); }
+    button:hover { background: var(--primary-dark); transform: translateY(-2px) rotate(-1deg); }
+    button:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--primary-shadow); }
 
     button.secondary {
       background: #fff;
-      color: var(--primary);
+      color: var(--primary-dark);
+      border: 3px solid var(--primary);
+      box-shadow: 0 5px 0 var(--line);
     }
 
     button.secondary:hover { background: var(--accent-bg); }
@@ -125,11 +217,18 @@
     input[type="number"] {
       width: 80px;
       padding: 8px 10px;
-      font: inherit;
-      font-size: 1.1rem;
-      border: 1px solid var(--line);
-      border-radius: 10px;
+      font-family: var(--cute-font);
+      font-size: 1.3rem;
+      text-align: center;
+      color: var(--text);
+      border: 3px solid var(--line);
+      border-radius: 16px;
+      outline: none;
     }
+
+    input[type="number"]:focus { border-color: var(--mint); }
+
+    label { font-family: var(--cute-font); font-size: 1.2rem; }
 
     .message {
       min-height: 1.5em;
@@ -144,13 +243,15 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      min-height: 150px;
-      margin-bottom: 16px;
+      min-height: 170px;
+      margin-bottom: 18px;
       padding: 16px;
-      background: var(--accent-bg);
-      border-radius: 14px;
-      font-size: clamp(2.5rem, 9vw, 5rem);
-      font-weight: bold;
+      background: linear-gradient(135deg, #fff6d6, #ffe3f0);
+      border: 3px dashed #ffd27a;
+      border-radius: 24px;
+      font-family: var(--cute-font);
+      font-size: clamp(2.8rem, 10vw, 5.5rem);
+      color: var(--primary-dark);
       text-align: center;
       letter-spacing: 0.1em;
       word-break: keep-all;
@@ -159,8 +260,7 @@
     }
 
     .picked-display.placeholder {
-      font-size: 1.3rem;
-      font-weight: normal;
+      font-size: 1.5rem;
       letter-spacing: 0;
       color: var(--muted);
     }
@@ -168,6 +268,7 @@
     button:disabled {
       opacity: 0.5;
       cursor: not-allowed;
+      transform: none;
     }
 
     /* ── 폭탄 애니메이션 ── */
@@ -202,7 +303,7 @@
     .flash {
       position: absolute;
       inset: 0;
-      background: radial-gradient(circle, #fff7c2 0%, #ffb300 35%, #ff5722 60%, transparent 80%);
+      background: radial-gradient(circle, #ffffff 0%, #fff3a8 30%, #ffb3d6 55%, transparent 80%);
       pointer-events: none;
       animation: flash 0.7s ease-out forwards;
     }
@@ -212,23 +313,22 @@
       100% { opacity: 0; transform: scale(2.2); }
     }
 
-    /* 사방으로 튀는 불꽃 조각 */
+    /* 사방으로 튀는 별·하트 조각 */
     .spark {
       position: absolute;
       left: 50%;
       top: 50%;
-      width: var(--size);
-      height: var(--size);
-      margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2);
-      border-radius: 50%;
-      background: var(--color);
+      font-size: var(--size);
+      line-height: 1;
+      letter-spacing: 0;
+      transform: translate(-50%, -50%);
       pointer-events: none;
-      animation: spark 0.9s ease-out forwards;
+      animation: spark 1s ease-out forwards;
     }
 
     @keyframes spark {
-      0%   { transform: translate(0, 0) scale(1); opacity: 1; }
-      100% { transform: translate(var(--dx), var(--dy)) scale(0.2); opacity: 0; }
+      0%   { transform: translate(-50%, -50%) scale(0.5) rotate(0deg); opacity: 1; }
+      100% { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.1) rotate(var(--spin)); opacity: 0; }
     }
 
     /* 화면 흔들림 */
@@ -253,8 +353,36 @@
 
     .remaining {
       margin-left: auto;
-      font-size: 1.1rem;
-      font-weight: bold;
+      padding: 4px 16px;
+      border-radius: 999px;
+      background: #fff6d6;
+      font-family: var(--cute-font);
+      font-size: 1.3rem;
+    }
+
+    /* 배경 음악 버튼: 화면 오른쪽 아래에 떠 있음 */
+    .music-btn {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      z-index: 10;
+      background: var(--lavender);
+      box-shadow: 0 5px 0 #8f78e8;
+    }
+
+    .music-btn:hover { background: #a792ff; }
+    .music-btn:active { box-shadow: 0 1px 0 #8f78e8; }
+
+    /* 음악이 켜져 있으면 음표가 통통 튐 */
+    .music-btn.playing { animation: music-bounce 0.54s ease-in-out infinite alternate; }
+
+    @keyframes music-bounce {
+      from { transform: translateY(0); }
+      to   { transform: translateY(-5px); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .music-btn.playing { animation: none; }
     }
 
     .sound-toggle {
@@ -266,68 +394,97 @@
     }
 
     .sound-toggle input {
-      width: 20px;
-      height: 20px;
+      width: 22px;
+      height: 22px;
+      accent-color: var(--primary);
     }
 
     .picked-list {
       margin: 12px 0 0;
       color: var(--muted);
+      font-family: var(--cute-font);
+      font-size: 1.15rem;
     }
 
     .groups {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 12px;
-      margin-top: 16px;
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      gap: 16px;
+      margin-top: 18px;
     }
 
+    /* 모둠 카드: 모둠마다 다른 파스텔 색 + 동물 */
     .group-card {
-      border: 2px solid var(--primary);
-      border-radius: 12px;
+      background: #fff;
+      border: 3px solid var(--g);
+      border-radius: 24px;
       overflow: hidden;
+      box-shadow: 0 6px 0 var(--g);
+      animation: card-in 0.4s cubic-bezier(0.2, 1.5, 0.4, 1) both;
+      animation-delay: var(--delay);
+    }
+
+    @keyframes card-in {
+      0%   { transform: scale(0.6) translateY(20px); opacity: 0; }
+      100% { transform: scale(1) translateY(0); opacity: 1; }
     }
 
     .group-card h3 {
       margin: 0;
-      padding: 8px 12px;
-      background: var(--primary);
-      color: #fff;
-      font-size: 1.15rem;
+      padding: 10px 14px;
+      background: var(--g);
+      font-family: var(--cute-font);
+      font-weight: normal;
+      font-size: 1.35rem;
     }
 
     .group-card ul {
       margin: 0;
-      padding: 10px 12px 12px 32px;
-      font-size: 1.2rem;
+      padding: 12px 14px 14px;
+      list-style: none;
+      font-family: var(--cute-font);
+      font-size: 1.35rem;
+    }
+
+    .group-card li::before { content: "♡ "; color: var(--primary); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .group-card { animation: none; }
     }
   </style>
 </head>
 <body>
   <main>
-    <h1>학생 뽑기 &amp; 모둠 편성기</h1>
+    <h1>🐰 학생 뽑기 &amp; 모둠 편성기 🐻</h1>
+    <p class="subtitle">두근두근, 오늘의 주인공은 누구일까요? ✨</p>
 
     <!-- [1] 명단 -->
-    <section>
-      <h2><span class="step">1</span>명단</h2>
+    <section class="sec-roster">
+      <h2><span class="step">📝</span>우리 반 명단</h2>
       <div class="roster-layout">
-        <textarea id="rosterInput" placeholder="한 줄에 한 명씩 이름을 입력하거나 붙여넣으세요.&#10;예)&#10;김민준&#10;이서연&#10;박지호"></textarea>
+        <div id="nameList" class="name-list"></div>
         <div class="roster-side">
           <div class="count">인원: <span id="countText">0</span>명</div>
-          <button id="saveBtn">명단 저장</button>
+          <button id="saveBtn">💾 명단 저장</button>
+          <div class="number-fill">
+            <input id="fillCount" type="number" min="1" max="99" value="27" aria-label="번호 명단 인원 수">
+            <span>번까지</span>
+          </div>
+          <button id="fillBtn" class="secondary">🔢 번호 맞추기</button>
         </div>
       </div>
+      <p class="roster-hint">💡 이름은 비워 둬도 돼요. 엑셀에서 이름 목록을 복사해 첫 칸에 붙여넣으면 차례로 들어가요. Enter를 누르면 다음 칸으로 가요.</p>
       <p id="rosterMessage" class="message"></p>
     </section>
 
     <!-- [2] 한 명 뽑기 -->
-    <section>
-      <h2><span class="step">2</span>한 명 뽑기</h2>
-      <div id="pickedDisplay" class="picked-display placeholder">"뽑기"를 누르세요</div>
+    <section class="sec-pick">
+      <h2><span class="step">🎯</span>한 명 뽑기</h2>
+      <div id="pickedDisplay" class="picked-display placeholder"></div>
       <div class="row">
-        <button id="pickBtn">뽑기</button>
-        <button id="resetBtn" class="secondary">다시 시작</button>
-        <label class="sound-toggle"><input id="soundOn" type="checkbox" checked> 소리</label>
+        <button id="pickBtn">💣 뽑기</button>
+        <button id="resetBtn" class="secondary">🔄 다시 시작</button>
+        <label class="sound-toggle"><input id="soundOn" type="checkbox" checked> 🔊 소리</label>
         <span class="remaining">남은 인원: <span id="remainingText">0</span>명</span>
       </div>
       <p id="pickMessage" class="message"></p>
@@ -335,25 +492,33 @@
     </section>
 
     <!-- [3] 모둠 편성 -->
-    <section>
-      <h2><span class="step">3</span>모둠 편성</h2>
+    <section class="sec-group">
+      <h2><span class="step">🧸</span>모둠 편성</h2>
       <div class="row">
-        <label for="groupCount">모둠 개수:</label>
+        <label for="groupCount">모둠 개수</label>
         <input id="groupCount" type="number" min="2" value="4">
-        <button id="groupBtn">모둠 만들기</button>
+        <button id="groupBtn">🎲 모둠 만들기</button>
       </div>
       <p id="groupMessage" class="message"></p>
       <div id="groups" class="groups"></div>
     </section>
   </main>
 
+  <!-- 오른쪽 아래 배경 음악 버튼 -->
+  <button id="musicBtn" class="music-btn" aria-pressed="false">🎵 음악 켜기</button>
+
   <script>
     const STORAGE_KEY = "classPicker.roster";
 
-    const rosterInput = document.getElementById("rosterInput");
+    const nameList = document.getElementById("nameList");
     const countText = document.getElementById("countText");
     const saveBtn = document.getElementById("saveBtn");
     const rosterMessage = document.getElementById("rosterMessage");
+    const fillCount = document.getElementById("fillCount");
+    const fillBtn = document.getElementById("fillBtn");
+
+    // 저장된 명단이 없을 때 쓰는 기본 번호 명단 (1번~27번)
+    const DEFAULT_COUNT = 27;
 
     const pickedDisplay = document.getElementById("pickedDisplay");
     const pickBtn = document.getElementById("pickBtn");
@@ -373,12 +538,78 @@
     let remaining = [];
     let picked = [];
 
-    // 텍스트 상자 내용 → 이름 배열 (빈 줄·앞뒤 공백 제거)
-    function parseNames(text) {
-      return text
-        .split("\n")
-        .map(name => name.trim())
-        .filter(name => name !== "");
+    // ── 번호 + 이름 칸 ──
+
+    // 이름 칸들 → 이름 배열 (빈 칸은 "")
+    function readNames() {
+      return [...nameList.querySelectorAll("input")].map(input => input.value.trim());
+    }
+
+    // 이름 배열 → 뽑기용 명단 ("3번 김민준", 이름이 없으면 "3번")
+    function toRoster(names) {
+      return names.map((name, i) => name ? (i + 1) + "번 " + name : (i + 1) + "번");
+    }
+
+    // 저장된 명단 → 이름 배열 ("3번 김민준" → "김민준", "3번" → "")
+    function toNames(list) {
+      return list.map(item => {
+        const match = String(item).match(/^\d+번\s*(.*)$/);
+        return match ? match[1].trim() : String(item).trim();
+      });
+    }
+
+    // 붙여넣은 한 줄에서 앞의 번호를 떼어 냄 ("3번 김민준", "3\t김민준", "3. 김민준" → "김민준")
+    function cleanPastedLine(line) {
+      return line.replace(/^\s*\d+\s*(번)?[\s.,)\t-]*/, "").trim();
+    }
+
+    function renderNames(names) {
+      nameList.innerHTML = "";
+      names.forEach((name, i) => {
+        const row = document.createElement("label");
+        row.className = "name-row";
+
+        const num = document.createElement("span");
+        num.className = "num";
+        num.textContent = (i + 1) + "번";
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.value = name;
+        input.placeholder = "이름";
+        input.dataset.index = i;
+
+        row.append(num, input);
+        nameList.appendChild(row);
+      });
+      updateCount();
+    }
+
+    // 여러 줄을 붙여넣으면 지금 칸부터 아래로 차례차례 채움 (칸이 모자라면 늘림)
+    function handlePaste(event) {
+      const input = event.target;
+      if (input.tagName !== "INPUT") return;
+
+      const text = (event.clipboardData || window.clipboardData).getData("text");
+      const lines = text.split(/\r?\n/).map(cleanPastedLine).filter(line => line !== "");
+      if (lines.length <= 1) return; // 한 줄이면 보통 붙여넣기
+
+      event.preventDefault();
+      const start = Number(input.dataset.index);
+      const names = readNames();
+      lines.forEach((line, k) => { names[start + k] = line; });
+      for (let i = 0; i < names.length; i++) if (names[i] === undefined) names[i] = "";
+      renderNames(names);
+      fillCount.value = names.length;
+      showMessage(rosterMessage, lines.length + "명의 이름을 넣었어요. [💾 명단 저장]을 눌러 주세요.", "ok");
+    }
+
+    // Enter를 누르면 다음 칸으로
+    function handleEnter(event) {
+      if (event.key !== "Enter" || event.target.tagName !== "INPUT") return;
+      event.preventDefault();
+      const next = nameList.querySelector('input[data-index="' + (Number(event.target.dataset.index) + 1) + '"]');
+      if (next) next.focus();
     }
 
     // 배열을 무작위로 섞은 새 배열 반환 (피셔-예이츠 셔플)
@@ -394,10 +625,16 @@
     // 뽑을 때 "펑!" 폭탄 터지는 소리 (소리 파일 없이 Web Audio로 합성)
     let audioCtx = null;
 
+    function getAudio() {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === "suspended") audioCtx.resume();
+      return audioCtx;
+    }
+
     function playBoom() {
       if (!soundOn.checked) return;
       try {
-        audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+        getAudio();
         const t = audioCtx.currentTime;
         const duration = 1.8;
 
@@ -441,13 +678,101 @@
       }
     }
 
+    // ── 배경 음악: 직접 만든 32칸짜리 멜로디를 계속 반복 (소리 파일 없음) ──
+    const musicBtn = document.getElementById("musicBtn");
+    const NOTE = {
+      C3: 130.81, F3: 174.61, G3: 196.00, A3: 220.00,
+      A4: 440.00, C5: 523.25, D5: 587.33, E5: 659.25,
+      F5: 698.46, G5: 783.99, A5: 880.00, C6: 1046.50
+    };
+    // 8분음표 32개 (null = 쉼표). 코드: C - F - C - G - Am - F - G - C
+    const MELODY = [
+      "C5", "E5", "G5", "E5",   "F5", "A5", "G5", null,
+      "E5", "G5", "C6", "G5",   "F5", "E5", "D5", null,
+      "A4", "C5", "E5", "C5",   "F5", "E5", "D5", "C5",
+      "D5", "E5", "F5", "D5",   "C5", null, "C5", null
+    ];
+    const BASS = ["C3", "F3", "C3", "G3", "A3", "F3", "G3", "C3"]; // 4칸마다 하나
+    const STEP_SEC = 60 / 112 / 2; // 빠르기 112, 8분음표 길이
+
+    let musicGain = null;
+    let musicTimer = null;
+    let musicStep = 0;
+    let nextNoteTime = 0;
+
+    function playTone(freq, time, length, type, volume) {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.0001, time);
+      gain.gain.exponentialRampToValueAtTime(volume, time + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, time + length);
+      osc.connect(gain).connect(musicGain);
+      osc.start(time);
+      osc.stop(time + length + 0.05);
+    }
+
+    // 조금 앞의 음까지 미리 예약해 두면 박자가 흔들리지 않음
+    function scheduleMusic() {
+      while (nextNoteTime < audioCtx.currentTime + 0.15) {
+        const note = MELODY[musicStep];
+        if (note) playTone(NOTE[note], nextNoteTime, STEP_SEC * 0.9, "triangle", 0.9);
+        if (musicStep % 4 === 0) {
+          // 노트북 스피커에서도 들리도록 베이스를 한 옥타브 올림(×2)
+          playTone(NOTE[BASS[musicStep / 4]] * 2, nextNoteTime, STEP_SEC * 3.5, "triangle", 0.45);
+        }
+        nextNoteTime += STEP_SEC;
+        musicStep = (musicStep + 1) % MELODY.length;
+      }
+    }
+
+    function startMusic() {
+      try {
+        getAudio();
+        musicGain = audioCtx.createGain();
+        musicGain.gain.value = 0.5; // 전체 음악 크기 (폭탄 소리보다는 작게)
+        musicGain.connect(audioCtx.destination);
+        musicStep = 0;
+        nextNoteTime = audioCtx.currentTime + 0.05;
+        scheduleMusic();
+        musicTimer = setInterval(scheduleMusic, 25);
+
+        musicBtn.textContent = "🔇 음악 끄기";
+        musicBtn.classList.add("playing");
+        musicBtn.setAttribute("aria-pressed", "true");
+      } catch (e) {
+        musicBtn.textContent = "🎵 음악 사용 불가";
+      }
+    }
+
+    function stopMusic() {
+      clearInterval(musicTimer);
+      musicTimer = null;
+      if (musicGain) {
+        // 뚝 끊기지 않게 살짝 줄인 뒤 연결 해제
+        const g = musicGain;
+        g.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05);
+        setTimeout(() => g.disconnect(), 300);
+        musicGain = null;
+      }
+      musicBtn.textContent = "🎵 음악 켜기";
+      musicBtn.classList.remove("playing");
+      musicBtn.setAttribute("aria-pressed", "false");
+    }
+
+    function toggleMusic() {
+      if (musicTimer) stopMusic();
+      else startMusic();
+    }
+
     function showMessage(element, text, type) {
       element.textContent = text;
       element.className = "message " + (type || "");
     }
 
     function updateCount() {
-      countText.textContent = parseNames(rosterInput.value).length;
+      countText.textContent = nameList.querySelectorAll("input").length;
     }
 
     function updatePickView() {
@@ -457,6 +782,31 @@
 
     // 애니메이션 진행 중인 타이머 (다시 시작하면 취소)
     let bombTimer = null;
+
+    // 뽑힌 이름 불러 주기 (브라우저에 들어 있는 음성 읽기 기능 사용)
+    let speakTimer = null;
+
+    function sayName(name) {
+      if (!soundOn.checked || !("speechSynthesis" in window)) return;
+
+      // 폭탄 소리에 묻히지 않게 0.6초 뒤에 말하기
+      clearTimeout(speakTimer);
+      speakTimer = setTimeout(() => {
+        const voice = speechSynthesis.getVoices().find(v => v.lang.toLowerCase().startsWith("ko"));
+        const talk = new SpeechSynthesisUtterance(name);
+        talk.lang = "ko-KR";
+        if (voice) talk.voice = voice;
+        talk.rate = 0.95;
+        talk.pitch = 1.2;
+        speechSynthesis.cancel();
+        speechSynthesis.speak(talk);
+      }, 600);
+    }
+
+    function stopSpeaking() {
+      clearTimeout(speakTimer);
+      if ("speechSynthesis" in window) speechSynthesis.cancel();
+    }
 
     function stopBomb() {
       clearTimeout(bombTimer);
@@ -477,6 +827,7 @@
 
       bombTimer = setTimeout(() => {
         playBoom();
+        sayName(name);
 
         // 이름 표시
         pickedDisplay.innerHTML = "";
@@ -490,17 +841,18 @@
         flash.className = "flash";
         pickedDisplay.appendChild(flash);
 
-        // 불꽃 조각 30개를 사방으로
-        const colors = ["#ff5722", "#ff9800", "#ffc107", "#ffeb3b", "#f44336"];
-        for (let i = 0; i < 30; i++) {
+        // 별·하트 조각 24개를 사방으로
+        const sparkles = ["⭐", "💖", "✨", "🌟", "💗", "🎀"];
+        for (let i = 0; i < 24; i++) {
           const spark = document.createElement("span");
           const angle = Math.random() * Math.PI * 2;
           const distance = 80 + Math.random() * 220;
           spark.className = "spark";
+          spark.textContent = sparkles[i % sparkles.length];
           spark.style.setProperty("--dx", Math.cos(angle) * distance + "px");
           spark.style.setProperty("--dy", Math.sin(angle) * distance + "px");
-          spark.style.setProperty("--size", 6 + Math.random() * 12 + "px");
-          spark.style.setProperty("--color", colors[i % colors.length]);
+          spark.style.setProperty("--size", 16 + Math.random() * 20 + "px");
+          spark.style.setProperty("--spin", (Math.random() * 720 - 360) + "deg");
           pickedDisplay.appendChild(spark);
         }
 
@@ -523,18 +875,18 @@
 
     function resetPick() {
       stopBomb();
+      stopSpeaking();
       document.body.classList.remove("shake");
       remaining = roster.slice();
       picked = [];
-      pickedDisplay.textContent = '"뽑기"를 누르세요';
+      pickedDisplay.textContent = "💣 버튼을 누르면 펑! 하고 나와요";
       pickedDisplay.classList.add("placeholder");
       showMessage(pickMessage, "");
       updatePickView();
     }
 
     function saveRoster() {
-      roster = parseNames(rosterInput.value);
-      rosterInput.value = roster.join("\n");
+      roster = toRoster(readNames());
       updateCount();
 
       try {
@@ -550,17 +902,32 @@
       showMessage(groupMessage, "");
     }
 
-    function loadRoster() {
-      try {
-        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-        if (Array.isArray(saved)) {
-          roster = saved;
-          rosterInput.value = roster.join("\n");
-        }
-      } catch (e) {
-        roster = [];
+    // 번호 칸 개수를 n개로 맞춤 (이미 쓴 이름은 그대로 두고, 늘리면 빈 칸 추가)
+    function fillNumbers() {
+      const n = Number(fillCount.value);
+      if (!Number.isInteger(n) || n < 1 || n > 99) {
+        showMessage(rosterMessage, "번호는 1부터 99까지 넣을 수 있어요.", "error");
+        return;
       }
-      updateCount();
+      const names = readNames().slice(0, n);
+      while (names.length < n) names.push("");
+      renderNames(names);
+      saveRoster();
+    }
+
+    function loadRoster() {
+      let saved = null;
+      try {
+        saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+      } catch (e) {
+        saved = null;
+      }
+
+      // 저장된 명단이 있으면 그대로, 처음 열었으면 1번~27번(이름 없음)으로 시작
+      const names = Array.isArray(saved) && saved.length ? toNames(saved) : Array(DEFAULT_COUNT).fill("");
+      renderNames(names);
+      fillCount.value = names.length;
+      roster = toRoster(names);
       resetPick();
     }
 
@@ -605,13 +972,19 @@
       const groups = Array.from({ length: count }, () => []);
       shuffle(roster).forEach((name, i) => groups[i % count].push(name));
 
+      // 모둠마다 동물 친구와 파스텔 색을 하나씩
+      const animals = ["🐰", "🐻", "🐱", "🐶", "🐼", "🦊", "🐸", "🐧", "🐯", "🐨", "🐹", "🐥"];
+      const pastels = ["#ffd1e6", "#ffe9a8", "#c9f0e3", "#d9ccff", "#cdeaff", "#ffd8c2"];
+
       groupsBox.innerHTML = "";
       groups.forEach((members, i) => {
         const card = document.createElement("div");
         card.className = "group-card";
+        card.style.setProperty("--g", pastels[i % pastels.length]);
+        card.style.setProperty("--delay", i * 0.08 + "s");
 
         const title = document.createElement("h3");
-        title.textContent = (i + 1) + "모둠 (" + members.length + "명)";
+        title.textContent = animals[i % animals.length] + " " + (i + 1) + "모둠 (" + members.length + "명)";
         card.appendChild(title);
 
         const list = document.createElement("ul");
@@ -628,9 +1001,17 @@
       showMessage(groupMessage, "");
     }
 
-    rosterInput.addEventListener("input", updateCount);
+    nameList.addEventListener("paste", handlePaste);
+    nameList.addEventListener("keydown", handleEnter);
+    nameList.addEventListener("input", () => {
+      showMessage(rosterMessage, "✏️ 다 쓰면 [💾 명단 저장]을 눌러 주세요.");
+    });
     saveBtn.addEventListener("click", saveRoster);
-    pickBtn.addEventListener("click", pickOne);
+    fillBtn.addEventListener("click", fillNumbers);
+    musicBtn.addEventListener("click", toggleMusic);
+
+    // 음성 목록을 미리 불러 두기 (크롬은 처음 부를 때 목록이 비어 있을 수 있음)
+    if ("speechSynthesis" in window) speechSynthesis.getVoices();    pickBtn.addEventListener("click", pickOne);
     resetBtn.addEventListener("click", resetPick);
     groupBtn.addEventListener("click", makeGroups);
 

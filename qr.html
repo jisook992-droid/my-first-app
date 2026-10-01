@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>학생용 접속 QR</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+      background-color: #fff7fb;
+      background-image: radial-gradient(#ffe0ee 18%, transparent 19%);
+      background-size: 28px 28px;
+      color: #4a3b52;
+      font-family: "Jua", "Malgun Gothic", "Apple SD Gothic Neo", system-ui, sans-serif;
+      text-align: center;
+    }
+
+    .poster {
+      width: 100%;
+      max-width: 560px;
+      padding: 32px 24px;
+      background: #fff;
+      border: 4px solid #ffd1e6;
+      border-radius: 36px;
+      box-shadow: 0 10px 0 #ffd1e6;
+    }
+
+    h1 {
+      margin: 0;
+      font-weight: normal;
+      font-size: clamp(1.5rem, 6vw, 2.1rem);
+      color: #f25c9f;
+    }
+
+    .guide {
+      margin: 8px 0 20px;
+      font-size: 1.3rem;
+      color: #8c7d95;
+    }
+
+    .qr {
+      display: block;
+      width: min(100%, 380px);
+      margin: 0 auto;
+      padding: 8px;
+      background: #fff;
+      border: 4px dashed #ffe9a8;
+      border-radius: 24px;
+    }
+
+    .steps {
+      margin: 20px 0 12px;
+      font-size: 1.25rem;
+      line-height: 1.8;
+    }
+
+    .url {
+      display: inline-block;
+      padding: 6px 16px;
+      border-radius: 999px;
+      background: #fff0f6;
+      font-family: system-ui, sans-serif;
+      font-size: 0.95rem;
+      word-break: break-all;
+      color: #4a3b52;
+    }
+
+    @media print {
+      body { background: #fff; }
+      .poster { box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="poster">
+    <h1>🐰 학생 뽑기 &amp; 모둠 편성기 🐻</h1>
+    <p class="guide">휴대폰 카메라로 찍어 보세요! 📱✨</p>
+    <img class="qr" src="qr.png" alt="학생 뽑기 & 모둠 편성기 접속 QR 코드">
+    <div class="steps">
+      ① 카메라 앱을 켜요<br>
+      ② QR 코드를 비춰요<br>
+      ③ 뜨는 주소를 눌러요 💖
+    </div>
+    <span class="url">https://jisook992-droid.github.io/my-first-app/</span>
+  </div>
+</body>
+</html>
